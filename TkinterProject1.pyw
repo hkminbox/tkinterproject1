@@ -170,21 +170,33 @@ def addWindow():
 
     topAdd.mainloop()
     
-def sql_generate(entryFindPhone, find_group_combo):
+def sql_generate(entryFindPhone, find_group_combo, type_radio_find):
     find_phone_entry = entryFindPhone.get()
     find_group = find_group_combo.get()
+    
+    find_rh = type_radio_find.get()
+    find_rh_val = None
+    if find_rh == 1:
+        find_rh_val = "Positive"
+    elif find_rh == 2:
+        find_rh_val = "Negative"
+    
     sql_find = None
     if find_phone_entry == "" and find_group != "--SELECT--":
-        sql_find = "SELECT * FROM Details WHERE `Blood group` = " + "'"  + find_group + "'"
+        sql_find = "SELECT * FROM Details WHERE `Blood group` = '"  + find_group + "'"
+        if find_rh_val is not None:
+            sql_find += "AND Rh = '" + find_rh_val + "'"
     elif find_phone_entry != "" and find_group == "--SELECT--":
         sql_find = "SELECT * FROM Details WHERE Phone = " + "'" + find_phone_entry + "'"
     elif find_phone_entry != "" and find_group != "--SELECT--":
-        sql_find = "SELECT * FROM Details WHERE Phone = " + find_phone_entry + " AND `Blood group` = " + "'" + find_group + "'"
+        sql_find = "SELECT * FROM Details WHERE Phone = " + find_phone_entry + " AND `Blood group` = '" + find_group + "'"
+        if find_rh_val is not None:
+            sql_find += "AND Rh = '" + find_rh_val + "'"
     return sql_find
     
-def findDisplay(entryFindPhone, find_group_combo):
+def findDisplay(entryFindPhone, find_group_combo, type_radio_find):
     global topFind
-    sql_statement = sql_generate(entryFindPhone, find_group_combo)
+    sql_statement = sql_generate(entryFindPhone, find_group_combo, type_radio_find)
     if(sql_statement != None):
         myconn = mysql.connector.connect(host = "localhost", user = "root",password = "",database = "database1")
         cur = myconn.cursor()
@@ -214,6 +226,7 @@ def findWindow():
     
     labelFindPhone = Label(topFind, text = "Phone Number", height = 2).place(x=91, y= 80, relheight = 0.1, relwidth = 0.3)
     labelFindGroup = Label(topFind, text = "Blood Group", height = 2).place(x=91, y= 126, relheight = 0.1, relwidth = 0.3)
+    labelFindRh = Label(topFind, text = "Rh", height = 2).place(x=91, y= 172, relheight = 0.1, relwidth = 0.3)
     
     entryFindPhone = Entry(topFind, width = 30)
     entryFindPhone.place(x=228, y= 105, anchor = "w")
@@ -223,8 +236,14 @@ def findWindow():
     find_group_combo.current(0)
     find_group_combo.place(x=228, y= 140)
     
+    type_radio_find = IntVar()
+    radiobutton_p_find = Radiobutton(topFind, text = "Positive", value = 1, variable = type_radio_find)
+    radiobutton_p_find.place(x=228, y= 185)
+    radiobutton_n_find = Radiobutton(topFind, text = "Negative", value = 2, variable = type_radio_find)
+    radiobutton_n_find.place(x=300, y= 185)
+    
 
-    findConditionButton = Button(topFind, text = "FIND", width = 30, bg = 'black', fg = 'white', command = lambda: findDisplay(entryFindPhone, find_group_combo))
+    findConditionButton = Button(topFind, text = "FIND", width = 30, bg = 'black', fg = 'white', command = lambda: findDisplay(entryFindPhone, find_group_combo, type_radio_find))
     findConditionButton.place(x=275, y= 250, anchor = CENTER)
     
     topFind.mainloop()
