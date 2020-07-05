@@ -111,7 +111,7 @@ def viewAllWindow():
     
 def viewSearch(data):
     topSearch = Toplevel()
-    topSearch.title('SEARCH RESULTS')
+    topSearch.title('Search')
     topSearch.geometry('575x500')
     topSearch.minsize(width=575, height=500)
     topSearch.maxsize(width=575, height=500)
@@ -139,14 +139,13 @@ def viewSearch(data):
     
     
 
-    offset1=0
     for index, dat in enumerate(data):
         for column_no in range(7):
             color =  lambda index: 'light cyan' if index%2 else None
             if column_no == 0:
-                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= CENTER, bg = color(index)).grid(row=index+1, column=offset1 + column_no)
+                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= CENTER, bg = color(index)).grid(row=index+1, column=column_no)
             else:
-                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= 'w', bg = color(index)).grid(row=index+1, column=offset1 + column_no)
+                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= 'w', bg = color(index)).grid(row=index+1, column=column_no)
 
     frame.pack()
     canvas.pack(side="left", fill="both", expand=True)
