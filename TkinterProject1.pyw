@@ -14,7 +14,7 @@ from tkinter import *
 from tkinter import ttk, Toplevel
 from tkinter import messagebox
 import mysql.connector
-
+topSearch = None
 def saveData():
     global entryName
     global entryAge
@@ -58,58 +58,22 @@ def onFrameConfigure(canvas):
     canvas.configure(scrollregion=canvas.bbox("all"))
 
 def viewAllWindow():
-    topView = Toplevel()
-    topView.title('View Data')
-    topView.geometry('575x500')
-    topView.minsize(width=575, height=500)
-    topView.maxsize(width=575, height=500)
-    labelHeading = Label(topView, text = "AVAILABLE DATA ", height = 1, width = 21, font = ("bold", 18), anchor= CENTER)
-    labelHeading.pack()
-    
-    
-    heading_frame = ttk.Frame(topView)
-    tuple_headings = ("Id","Name","Age" ,"Gender" ,"Phone" ,"Blood group" ,"Rh")
-    for index_heading, data_heading in enumerate(tuple_headings):
-        if index_heading == 0:
-            Label(heading_frame, text= data_heading, width = 5, anchor= 'w', relief="groove", bg = 'PeachPuff2').grid(row=0, column= index_heading)
-        else:
-            Label(heading_frame, text= data_heading, width = 10, anchor= 'w', relief="groove", bg = 'PeachPuff2').grid(row=0, column= index_heading)
-    heading_frame.pack()
-    
     myconn = mysql.connector.connect(host = "localhost", user = "root",password = "",database = "database1")
     cur = myconn.cursor()
     sql_statement = "SELECT * FROM Details"
     cur.execute(sql_statement)
     data = cur.fetchall()
     myconn.close()
-#     Name, Age, Sex, Phone ,Blood group, and Rh
-
-
-    frame = ttk.Frame(topView)
-    canvas = Canvas(frame, width=550, height=500)
-    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=canvas.yview)
-    scrollable_frame = ttk.Frame(canvas)
-    scrollable_frame.bind("<Configure>",lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
     
-    
+    if data != []:
+        viewSearch(data)
+    else:
+        messagebox.showinfo("No Data", "Database is Empty")
 
-    offset1=0
-    for index, dat in enumerate(data):
-        for column_no in range(7):
-            color =  lambda index: 'light cyan' if index%2 else None
-            if column_no == 0:
-                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= CENTER, bg = color(index)).grid(row=index+1, column=offset1 + column_no)
-            else:
-                Label(scrollable_frame, text=dat[column_no], width = 10, anchor= 'w', bg = color(index)).grid(row=index+1, column=offset1 + column_no)
-
-    frame.pack()
-    canvas.pack(side="left", fill="both", expand=True)
-    scrollbar.pack(side="right", fill="y")
-    topView.mainloop()
-    
 def viewSearch(data):
+    global topSearch
+    if(topSearch is not None):
+        topSearch.destroy()
     topSearch = Toplevel()
     topSearch.title('Search')
     topSearch.geometry('575x500')
@@ -127,7 +91,6 @@ def viewSearch(data):
         else:
             Label(heading_frame, text= data_heading, width = 10, anchor= 'w', relief="groove", bg = 'PeachPuff2').grid(row=0, column= index_heading)
     heading_frame.pack()
-#     Name, Age, Sex, Phone ,Blood group, and Rh
 
     frame = ttk.Frame(topSearch)
     canvas = Canvas(frame, width=550, height=500)
@@ -206,6 +169,7 @@ def addWindow():
     submitButton.place(x=245, y= 430, anchor = CENTER)
 
     topAdd.mainloop()
+    
 def sql_generate(entryFindPhone, find_group_combo):
     find_phone_entry = entryFindPhone.get()
     find_group = find_group_combo.get()
@@ -221,7 +185,6 @@ def sql_generate(entryFindPhone, find_group_combo):
 def findDisplay(entryFindPhone, find_group_combo):
     global topFind
     sql_statement = sql_generate(entryFindPhone, find_group_combo)
-    print(sql_statement)
     if(sql_statement != None):
         myconn = mysql.connector.connect(host = "localhost", user = "root",password = "",database = "database1")
         cur = myconn.cursor()
@@ -283,7 +246,5 @@ viewButton = Button(root, text = "View all data", image = viewAllImage, command 
 viewButton.place(x=315, y= 215, anchor = CENTER)
 findButton = Button(root, text = "Find", image = findImage, command = findWindow)
 findButton.place(x=250, y= 300, anchor = CENTER)
-
-
 
 root.mainloop()
